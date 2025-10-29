@@ -115,17 +115,6 @@ The YARA processing module is used to scan HTTP response content with YARA rules
 python3 subcrawl.py -p YARAProcessing -s ConsoleStorage
 ```
 
-Currently, the YARA processing module is used to identify webshell logins and various other interesting content. YARA rules included with this project:
-
-* protected_webshell: Identifies login pages of password-protected webshells
-* js_webshell_tracking_script: Identifies backdoored plugins/themes that use JavaScript 
-to notifies the attacker when the webshell becomes active
-* open_webshell: Identifies open webshells (i.e. webshells that are not protected via login)
-* php_webshell_backend: Identifies PHP webshell backend used by the attacker
-
-Sample output:
-![Yara processing output](images/yara-output.png)
-
 To add additional YARA rules, you can add .YAR files to the *yara-rules* folder, and then include the rule file by adding an *include* statement to *combined-rules.yar*.
 
 #### ClamAV

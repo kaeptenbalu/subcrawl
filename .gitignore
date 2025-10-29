@@ -1,5 +1,6 @@
-#VS Code
 .vscode
+tools/
+crawler/config.yml
 
 # SubCrawl specific
 subcrawl.log.*

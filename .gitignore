@@ -3,7 +3,7 @@
 
 # SubCrawl specific
 subcrawl.log.*
-
+/crawler/yara-rules/pwc/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -133,3 +133,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+crawler/yara-rules/pwc/

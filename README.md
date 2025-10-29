@@ -1,30 +1,22 @@
 # SubCrawl
 
-SubCrawl is a framework developed by [Patrick Schläpfer](https://twitter.com/stoerchl), [Josh Stroschein](https://twitter.com/jstrosch) and [Alex Holland](https://twitter.com/cryptogramfan) of HP Inc’s [Threat Research](https://threatresearch.ext.hp.com/blog/) team. SubCrawl is designed to find, scan and analyze open directories. The framework is modular, consisting of four components: input modules, processing modules, output modules and the core crawling engine. URLs are the primary input values, which the framework parses and adds to a queuing system before crawling them. The parsing of the URLs is an important first step, as this takes a submitted URL and generates additional URLs to be crawled by removing sub-directories, one at a time until none remain. This process ensures a more complete scan attempt of a web server and can lead to the discovery of additional content. Notably, SubCrawl does not use a brute-force method for discovering URLs. All the content scanned comes from the input URLs, the process of parsing the URL and discovery during crawling. When an open directory is discovered, the crawling engine extracts links from the directory for evaluation. The crawling engine determines if the link is another directory or if it is a file. Directories are added to the crawling queue, while files undergo additional analysis by the processing modules. Results are generated and stored for each scanned URL, such as the SHA256 and fuzzy hashes of the content, if an open directory was found, or matches against YARA rules. Finally, the result data is processed according to one or more output modules, of which there are currently three. The first provides integration with MISP, the second simply prints the data to the console, and the third stores the data in an SQLite database. Since the framework is modular, it is not only easy to configure which input, processing and output modules are desired, but also straightforward to develop new modules. 
+This is a Fork from the SubCrawl framework [Subcrawl](https://github.com/hpthreatresearch/subcrawl). SubCrawl is designed to find, scan and analyze open directories. The framework is modular, consisting of four components: input modules, processing modules, output modules and the core crawling engine. URLs are the primary input values, which the framework parses and adds to a queuing system before crawling them. The parsing of the URLs is an important first step, as this takes a submitted URL and generates additional URLs to be crawled by removing sub-directories, one at a time until none remain. This process ensures a more complete scan attempt of a web server and can lead to the discovery of additional content. Notably, SubCrawl does not use a brute-force method for discovering URLs. All the content scanned comes from the input URLs, the process of parsing the URL and discovery during crawling. The crawling engine extracts links from the directory for evaluation. The crawling engine determines if the link is another directory or if it is a file. Directories are added to the crawling queue, while files undergo additional analysis by the processing modules. Results are generated and stored for each scanned URL, such as the SHA256 and fuzzy hashes of the content, if an open directory was found, or matches against YARA rules. Finally, the result data is processed according to one or more output modules. **Currently three in this Fork**. The first provides integration with MISP, the second simply prints the data to the console, and the third sends Data to an Teams Webhook. Since the framework is modular, it is not only easy to configure which input, processing and output modules are desired, but also straightforward to develop new modules. 
 
-![Framework Architecture](images/architecture.png)
-_Figure 1 - SubCrawl architecture_
 
-SubCrawl supports two different modes of operation. First, SubCrawl can be started in a run-once mode. In this mode, the user supplies the URLs to be scanned in a file where each input value is separated by a line break. The second mode of operation is service mode. In this mode, SubCrawl runs in the background and relies on the input modules to supply the URLs to be scanned. Figure 1 shows an overview of SubCrawl’s architecture. The components that are used in both modes of operation are blue, run-once mode components are yellow, and service mode components are green.
+This Fork supports one operation mode. In this mode, the user supplies the URLs to be scanned in a file where each input value is separated by a line break.
 
 ## Requirements
-
-Based on the chosen run mode, other preconditions must be met.
-
-### Run-Once Mode Requirements
 
 SubCrawl is written in Python3. In addition, there are several packages that are required before running SubCrawl. The following command can be used to install all required packages before running SubCrawl. From the *crawler* directory, run the following command:
 
 ```
+$ cd subcrawl
+$ python3 -m venv venv
+$ source ./venv/bin/activate
+$ cd crawler
 $ sudo apt install build-essential
 $ pip3 install -r requirements.txt
 ```
-
-### Service Mode Requirements
-
-If SubCrawl is started in service mode, this can be done using Docker. For this reason, the installation of Docker and Docker Compose is required. Good installation instructions for this can be found directly on the Docker.com website.
-- [Installing Docker Engine](https://docs.docker.com/engine/install/ubuntu/)
-- [Installing Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Getting Help
 
@@ -47,7 +39,6 @@ optional arguments:
   -h, --help            show this help message and exit
   -f FILE_PATH, --file FILE_PATH
                         Path of input URL file
-  -k, --kafka           Use Kafka Queue as input
   -p PROCESSING_MODULES, --processing PROCESSING_MODULES
                         Processing modules to be executed comma separated.
   -s STORAGE_MODULES, --storage STORAGE_MODULES
@@ -63,53 +54,17 @@ optional arguments:
   Available storage modules: 
   - ConsoleStorage
   - MISPStorage
-  - SqliteStorage
-```
+  - TeamsStorage
 
 ## Run-Once Mode
 
-This mode is suitable if you want to quickly scan a manageable amount of domains. For this purpose, the URLs to be scanned must be saved in a file, which then serves as input for the crawler. The following is an example of executing in run-once mode, not the _-f_ argument is used with a path to a file.
+The URLs to be scanned must be saved in a file, which then serves as input for the crawler. The following is an example of executing in run-once mode, not the _-f_ argument is used with a path to a file.
 
 ```
 python3 subcrawl.py -f urls.txt -p YARAProcessing,PayloadProcessing -s ConsoleStorage
 ```
 
-## Service Mode
-
-With the service mode, a larger amount of domains can be scanned and the results saved. Based on the selected storage module, the data can then be analyzed and evaluated in more detail. To make running the service mode as easy as possible for the user, we built all the functionalities into a Docker image. In service mode, the domains to be scanned are obtained via Input modules. By default, new malware and phishing URLs are downloaded from [URLhaus](https://urlhaus.abuse.ch/) and [PhishTank](https://www.phishtank.com/) and queued for scanning. The desired processing and storage modules can be entered directly in the `config.yml`. By default, the following processing modules are activated, utilizing the SQLite storage:
-- ClamAVProcessing
-- JARMProcessing
-- TLSHProcessing
-- YARAProcessing
-
-In addition to the SQLite storage module, a simple web UI was developed that allows viewing and managing the scanned domains and URLs. 
-
-![Web UI for SQLite storage module](images/webui.png)
-
-However, if this UI is not sufficient for the subsequent evaluation of the data, the MISP storage module can be activated alternatively or additionally. The corresponding settings must be made in `config.yml` under the `MISP` section. 
-
-The following two commands are enough to clone the GIT repository, create the Docker container and start it directly. Afterwards the web UI can be reached at the address `https://localhost:8000/`. Please note, once the containers have started the input modules will begin to add URLs to the processing queue and the engine will begin crawling hosts.
-
-
-```
-git clone https://github.com/hpthreatresearch/subcrawl.git
-
-docker-compose up --build 
-```
-
 ## SubCrawl Modules
-
-### Input Modules
-
-Input modules are only used in service mode. If SubCrawl started using the run-once mode then a file containing the URLs to scan must be supplied. The following two input modules have been implemented.
-
-#### URLhaus
-
-[URLhaus](https://urlhaus.abuse.ch/) is a prominent web service tracking malicious URLs. The web service also provides exports containing new detected URLs. Those malware URLs serve as perfect input to our crawler as we mainly want to analyze malicious domains. Recently submitted URLS are retrieved and search results are not refined through the API request (i.e. through tags or other parameters available). The HTTP request made in this [input module](crawler/input/urlhaus.py) to the URLHaus API can be modifed to further refine the results obtained. 
-
-#### PhishTank
-
-[PhishTank](https://www.phishtank.com/) is a website that collects phishing URLs. Users have the possibility to submit new found phishing pages. An export with active phishing URLs can be generated and downloaded from this web service via API. So this is also an ideal collection for our crawler.
 
 ### Processing Modules
 
@@ -216,9 +171,6 @@ python3 subcrawl.py -p PayloadProcessing -s ConsoleStorage
 
 There are no additional dependencies for this module. 
 
-Sample output:
-![Payload processing output](images/payload-output.png)
-
 
 ### Storage Modules
 
@@ -228,31 +180,17 @@ Storage modules are called by the SubCrawl engine after all URLs from the queue 
 
 To quickly analyse results directly after scanning URLs, a well-formatted output is printed to the console. This output is best suited for when SubCrawl is used in run-once mode. While this approach worked well for scanning single domains or generating quick output, it is unwieldy for long-term research and analysis.
 
-![Console Storage UI](images/console-storage.png)
-
-#### Elastic
-
-Integration with an Elastic cluster is also available. Each URL along with it's data will be indexed as an event, this will include output from other modules such as Yara. A default dashboard has also been added to help get started using this module. Updates the _elasticsearch_ section will need to be made, this will include:
-
-* Elastic search host (default localhost)
-* Port to find elastic on (default 9200)
-* Index name (default subcrawl)
-* Archive response content - this saves the HTTP response body to disk (default False)
-* Archive log location - location to save response content (default log/)
-
-To use this output module, provide the value *ElasticStorage* with the _-s_ argument.
-
-#### SQLite
-
-Since the installation and configuration of MISP can be time-consuming, we implemented another module which stores the data in an SQLite database. To present the data to the user as simply and clearly as possible, we also developed a simple web GUI. Using this web application, the scanned domains and URLs can be viewed and searched with all their attributes. Since this is only an early version, no complex comparison features have been implemented yet.
-
-![SQLite UI](images/sqlite-storage.png)
 
 #### MISP
 
 [MISP](https://www.misp-project.org/) is an open-source threat intelligence platform with a flexible data model and API to store and analyze threat data. SubCrawl stores crawled data in MISP events, publishing one event per domain and adding any identified open directories as attributes. MISP also allows users to define tags for events and attributes. This is helpful for event comparison and link analyses. Since this was one of our primary research goals, we enriched the data from URLHaus when exporting SubCrawl’s output to MISP. URLHaus annotates its data using tags which can be used to identify a malware family or threat actor associated with a URL. For each open directory URL, the module queries locally-stored URLHaus data and adds URLHaus tags to the MISP event if they match. To avoid having a collection of unrelated attributes for each MISP event, we created a new MISP object for scanned URLs, called opendir-url. This ensures that related attributes are kept together, making it easier to get an overview of the data.
 
-![MISP UI](images/misp-overview.png)
+
+#### Teams
+
+The Teams storage module enables real-time notifications to Microsoft Teams webhooks. When SubCrawl discovers interesting content (open directories, YARA matches, ClamAV detections, or URLhaus matches), it sends formatted messages to a configured Teams channel. Each notification includes the domain, associated findings (YARA/ClamAV/Payload detections, URLhaus tags). This module can run independently or alongside other storage modules like MISP. To use it, configure a Teams webhook URL in the config.yml and include TeamsStorage in the storage modules. Also you have to use :
+
+```
 
 ## Building your own Modules
 
@@ -282,12 +220,6 @@ Storage modules can be found under `crawler->storage` and a sample module file `
 
 A unique class name must be defined and is used to load the module when including it via the _-s_ argument or as a default processing module in the configuration file.
 
-## Presentations and Other Resources
-
-2021:
-
-- [BlackHat Arsenal USA](https://www.blackhat.com/us-21/arsenal/schedule/index.html#introducing-subcrawl-a-framework-for-the-analysis-and-clustering-of-hacking-tools-found-using-open-directories-24081)
-- [VirusBulletin Localhost - Upcoming](https://vblocalhost.com/presentations/introducing-subcrawl-a-framework-for-the-analysis-and-clustering-of-hacking-tools-found-using-open-directories)
 
 ## License
 SubCrawl is licensed under the MIT license

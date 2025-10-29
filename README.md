@@ -22,16 +22,7 @@ $ pip3 install -r requirements.txt
 
 SubCrawl has built-in help through the _-h/--help_ argument or by simply executing the script without any arguments.
 
-```
-  ********         **        ******                               **
- **//////         /**       **////**                             /**
-/**        **   **/**      **    //  ******  ******   ***     ** /**
-/*********/**  /**/****** /**       //**//* //////** //**  * /** /**
-////////**/**  /**/**///**/**        /** /   *******  /** ***/** /**
-       /**/**  /**/**  /**//**    ** /**    **////**  /****/**** /**
- ******** //******/******  //****** /***   //******** ***/ ///** ***
-////////   ////// /////     //////  ///     //////// ///    /// /// 
-~~ Harvesting the Open Web ~~
+## usage 
 
 usage: subcrawl.py [-h] [-f FILE_PATH] [-k] [-p PROCESSING_MODULES] [-s STORAGE_MODULES]
 

@@ -170,7 +170,6 @@ To quickly analyse results directly after scanning URLs, a well-formatted output
 
 The Teams storage module enables real-time notifications to Microsoft Teams webhooks. When SubCrawl discovers interesting content (open directories, YARA matches, ClamAV detections, or URLhaus matches), it sends formatted messages to a configured Teams channel. Each notification includes the domain, associated findings (YARA/ClamAV/Payload detections, URLhaus tags). This module can run independently or alongside other storage modules like MISP. To use it, configure a Teams webhook URL in the config.yml and include TeamsStorage in the storage modules. Also you have to use :
 
-```
 
 ## Building your own Modules
 

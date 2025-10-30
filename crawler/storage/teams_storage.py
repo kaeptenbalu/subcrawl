@@ -125,7 +125,7 @@ class TeamsStorage(DefaultStorage):
 
     def _create_teams_message(self, finding: Finding) -> str:
         """Erstellt formatierte Teams-Nachricht (nur Ergebnis, keine MISP-Links)."""
-        parts = [f"**SubCrawl Scan Ergebnis**", f"**Domain:** `{finding.domain}`"]
+        parts = [f"**SubCrawl Scan Result**", f"**Domain:** `{finding.domain}`"]
         if finding.teams_id:
             parts.append(f"**Associated Teams ID:** `{finding.teams_id}`")
         summary = []
@@ -147,11 +147,11 @@ class TeamsStorage(DefaultStorage):
         if summary:
             parts.append("**Findings:**\n- " + "\n- ".join(summary))
         else:
-            parts.append("Keine spezifischen Findings gefunden.")
+            parts.append("No Findings.")
         return "\n\n".join(parts)
 
     def _send_teams_message(self, message_text: str) -> None:
-        """Sendet Nachricht an Teams Webhook (simple JSON payload)."""
+        """Sends as Teams Webhook (simple JSON payload)."""
         if not self.teams_webhook_url:
             self.logger.debug("[TeamsStorage] No Teams webhook configured, skipping send.")
             return

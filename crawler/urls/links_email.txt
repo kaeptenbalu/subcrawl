@@ -1,5 +1,0 @@
-https://nor.safelink.emails.azure.net/redirect/?destination=https%3A%2F%2Fgo.microsoft.com%2Ffwlink%2F%3FLinkId%3D521839&p=bT0zMTdiZDI4NS00NGE3LTRhYzEtOGJiMy00YWM0MzMwOGE4MGImdT1hZW8mbD1wcml2YWN5LXN0YXRlbWVudA%3D%3D
-https://nor.safelink.emails.azure.net/trackingpixel/?p=bT0zMTdiZDI4NS00NGE3LTRhYzEtOGJiMy00YWM0MzMwOGE4MGImdT1hZW8%3D
-https://nor.safelink.emails.azure.net/trackingfeedback/?p=bT0zMTdiZDI4NS00NGE3LTRhYzEtOGJiMy00YWM0MzMwOGE4MGImZj1Qb3NpdGl2ZSZiPWRlLWRlJmE9MjkuMTAuMjAyNSAwOToyODo0NCZ1PWFlbw%3D%3D
-https://images.ecomm.microsoft.com/cdn/mediahandler/azure-emails-templates/production/shared/images/templates/shared/images/icons/status-alert.png
-https://go.microsoft.com/fwlink/?LinkId=521839
